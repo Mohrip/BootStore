@@ -32,10 +32,13 @@ public class Customer  extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "is_enabled")
+
+    @Column(name = "is_enabled", nullable = false)
+    @Builder.Default
     private boolean isEnabled = true;
 
-    @Column(name = "is_locked")
+    @Column(name = "is_locked", nullable = false)
+    @Builder.Default
     private boolean isAccountLocked = false;
 
 
