@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableJpaAuditing
-//@EnableScheduling
+@EnableScheduling
 //@EnableCaching
 public class AppConfig {
 }
