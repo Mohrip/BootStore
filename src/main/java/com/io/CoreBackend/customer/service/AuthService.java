@@ -6,6 +6,7 @@ import com.io.CoreBackend.customer.mapper.CustomerMapper;
 import com.io.CoreBackend.customer.repository.CustomerRepository;
 import com.io.CoreBackend.shared.exception.BusinessRuleException;
 import com.io.CoreBackend.shared.exception.ResourceNotFoundException;
+import org.springframework.security.core.AuthenticationException;
 import com.io.CoreBackend.shared.security.JwtService;
 import com.io.CoreBackend.shared.security.TokenDenylistService;
 import io.jsonwebtoken.Claims;
