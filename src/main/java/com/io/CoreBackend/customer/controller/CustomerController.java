@@ -26,10 +26,10 @@ public class CustomerController {
 
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CustomerResponse> getCustomer(@PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.getCustomerById(id));
-    }
+//    @GetMapping("/{id}")
+//    public ResponseEntity<CustomerResponse> getCustomer(@PathVariable Long id){
+//        return ResponseEntity.status(HttpStatus.OK).body(customerService.getCustomerById(id));
+//    }
 
 
 
