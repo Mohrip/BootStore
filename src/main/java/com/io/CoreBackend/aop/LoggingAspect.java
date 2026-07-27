@@ -2,42 +2,66 @@ package com.io.CoreBackend.aop;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 
 
-@Aspect
-@Component
-public class LoggingAspect {
+    @Aspect
+    @Component
+    public class LoggingAspect {
 
-    private static final Logger log = LoggerFactory.getLogger(LoggingAspect.class);
+        private static final Logger log = LoggerFactory.getLogger(LoggingAspect.class);
+
+        // here I just exclude the AuthService to avoid security vulnerability in real world APPS
+        @Pointcut("@within(org.springframework.stereotype.Service) "
+                + "&& !within(com.io.CoreBackend.customer.service.AuthService)")
+        public void serviceMethods() {
+        }
+
+        //  1- @AfterReturning is for the successfully returned object
+        @AfterReturning(pointcut = "serviceMethods()", returning = "result")
+        public void afterReturning(JoinPoint joinPoint, Object result) {
+            String method = joinPoint.getSignature().toShortString();
+            log.info("{} completed successfully. Returned payload: {}", method, result);
+        }
 
 
-    @Before("@within(org.springframework.stereotype.Service)")
-    public void logBeforeExecution(JoinPoint joinPoint) {
-        String methodName = joinPoint.getSignature().getName();
-        Object[] args = joinPoint.getArgs();
+        // 2- @AfterThrowing is for the exception thrown
+        @AfterThrowing(pointcut = "serviceMethods()", throwing = "ex")
+        public void afterThrowing(JoinPoint joinPoint, Exception ex) {
+            String method = joinPoint.getSignature().toShortString();
+            log.info("{} completed with exception: {}", method, ex.getMessage());
+        }
 
-        log.info("Starting execution of method: {} with arguments: {}",
-                methodName, Arrays.toString(args));
+        // 3- @After is for the method completion (regardless of success or exception)
+        @After("serviceMethods()")
+        public void logAfter(JoinPoint joinPoint) {
+            String method = joinPoint.getSignature().toShortString();
+            log.info("{} completed successfully", method);
+        }
+
+
+        // 4- @Around is
+        @Around("serviceMethods()")
+        public Object logExecution(ProceedingJoinPoint joinPoint) throws Throwable {
+            long start = System.currentTimeMillis();
+            String method = joinPoint.getSignature().toShortString();
+            try {
+                return joinPoint.proceed();
+            } catch (Throwable ex) {
+                log.warn("{} failed after {} ms: {}", method,
+                        System.currentTimeMillis() - start, ex.getClass().getSimpleName());
+                throw ex;
+            } finally {
+                log.debug("{} took {} ms", method, System.currentTimeMillis() - start);
+            }
+        }
     }
-
-
-    @Around("@within(org.springframework.stereotype.Service)")
-    public Object logExecution(ProceedingJoinPoint joinPoint) throws Throwable {
-        long start = System.currentTimeMillis();
-
-        Object result = joinPoint.proceed();
-
-        long executionTime = System.currentTimeMillis() - start;
-        log.info("Execution time for {}: {} ms", joinPoint.getSignature().getName(), executionTime);
-
-        return result;
-    }
-}

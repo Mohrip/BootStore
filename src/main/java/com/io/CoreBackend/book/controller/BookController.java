@@ -6,6 +6,7 @@ import com.io.CoreBackend.book.dto.UpdateBookDto;
 import com.io.CoreBackend.book.dto.ResponseBookDto;
 import com.io.CoreBackend.book.dto.CreateBookDto;
 import com.io.CoreBackend.book.service.BookService;
+import com.io.CoreBackend.shared.exception.BookNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @RequestMapping("/api/v1/books")
 public class BookController {
 
-    @Autowired
+
     private final BookService bookService;
 
 
@@ -37,9 +38,15 @@ public class BookController {
         return bookService.findAll(pageable);
     }
 
+//    @GetMapping("/id")
+//    public Optional<ResponseBookDto> findById(@RequestParam Long id) {
+//        return bookService.findById(id);
+//    }
     @GetMapping("/id")
-    public Optional<ResponseBookDto> findById(@RequestParam Long id) {
-        return bookService.findById(id);
+    public ResponseEntity<ResponseBookDto> findById(@RequestParam Long id) {
+        return bookService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new BookNotFoundException(id));
     }
 
 
