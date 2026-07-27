@@ -25,6 +25,8 @@ public class CustomerMapper {
                 .email(customer.getEmail())
                 .phone(customer.getPhone())
                 .address(customer.getAddress())
+                .createdAt(customer.getCreatedAt())
+                .updatedAt(customer.getUpdatedAt())
                 .build();
     }
 }

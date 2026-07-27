@@ -1,6 +1,8 @@
 package com.io.CoreBackend.shared.exception;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(RestExceptionHandler.class);
 
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -35,13 +39,24 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
-    @ExceptionHandler({ BookIdMismatchException.class,
-            BookAlreadyExistsException.class,
-            ConstraintViolationException.class,
-            DataIntegrityViolationException.class })
+    @ExceptionHandler(BookAlreadyExistsException.class)
     public ResponseEntity<Object> handleBadRequest(
             Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(),
+                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    /**
+     * Database-level constraint failures are the client's fault (400), but their
+     * messages contain raw SQL, table and constraint names — so log the detail
+     * server-side and return something generic.
+     */
+    @ExceptionHandler({ ConstraintViolationException.class,
+            DataIntegrityViolationException.class })
+    public ResponseEntity<Object> handleDataIntegrity(
+            Exception ex, WebRequest request) {
+        log.warn("Data integrity violation on {}", request.getDescription(false), ex);
+        return handleExceptionInternal(ex, "Request violates a data constraint",
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
@@ -59,6 +74,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneric(Exception ex, WebRequest request) {
+        log.error("Unhandled exception on {}", request.getDescription(false), ex);
         return handleExceptionInternal(ex, "Something went wrong",
                 new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }

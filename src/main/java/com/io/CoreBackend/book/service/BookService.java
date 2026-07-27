@@ -90,7 +90,7 @@ public class BookService {
     }
 
     private Category resolveCategory(String categoryName) {
-        if (categoryName == null || categoryName.isEmpty()) {
+        if (categoryName == null || categoryName.isBlank()) {
             return null;
         }
         return categoryRepository.getCategoriesByName(categoryName)

@@ -4,8 +4,11 @@ import com.io.CoreBackend.authors.entity.Author;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 
 import java.math.BigDecimal;
@@ -18,13 +21,17 @@ import java.time.LocalDate;
 })
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = {"author", "category"})
 @Builder
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_seq")
     @SequenceGenerator(name = "book_seq", sequenceName = "book_seq", allocationSize = 500)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false)

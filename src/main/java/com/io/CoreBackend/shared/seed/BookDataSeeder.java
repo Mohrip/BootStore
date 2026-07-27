@@ -283,8 +283,20 @@ public class BookDataSeeder implements CommandLineRunner {
         return indices;
     }
 
+    /**
+     * Builds a genuinely valid ISBN-13: a 978-prefixed 12-digit body plus the
+     * mod-10 check digit. Seeded ISBNs must satisfy the same IsbnValidator the
+     * API enforces, otherwise seeded books could never be updated through it.
+     */
     private String generateIsbn(int index) {
-        return "978" + String.format("%010d", index);
+        String body = "978" + String.format("%09d", index);
+        int sum = 0;
+        for (int i = 0; i < body.length(); i++) {
+            int digit = body.charAt(i) - '0';
+            sum += (i % 2 == 0) ? digit : digit * 3;
+        }
+        int checkDigit = (10 - (sum % 10)) % 10;
+        return body + checkDigit;
     }
 
     private BigDecimal randomPrice() {

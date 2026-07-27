@@ -5,7 +5,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
@@ -26,24 +25,25 @@ import org.springframework.stereotype.Component;
         public void serviceMethods() {
         }
 
+        /**
+         * Logs the returned TYPE only — never the payload. A page of books can hold
+         * thousands of DTOs, and entity toString() can trigger lazy loads now that
+         * open-in-view is disabled.
+         */
         @AfterReturning(pointcut = "serviceMethods()", returning = "result")
         public void afterReturning(JoinPoint joinPoint, Object result) {
             String method = joinPoint.getSignature().toShortString();
-            log.info("{} completed successfully. Returned payload: {}", method, result);
+            log.debug("{} returned {}", method,
+                    result == null ? "null" : result.getClass().getSimpleName());
         }
 
 
         @AfterThrowing(pointcut = "serviceMethods()", throwing = "ex")
         public void afterThrowing(JoinPoint joinPoint, Exception ex) {
             String method = joinPoint.getSignature().toShortString();
-            log.info("{} completed with exception: {}", method, ex.getMessage());
+            log.warn("{} threw {}: {}", method, ex.getClass().getSimpleName(), ex.getMessage());
         }
 
-        @After("serviceMethods()")
-        public void logAfter(JoinPoint joinPoint) {
-            String method = joinPoint.getSignature().toShortString();
-            log.info("{} completed successfully", method);
-        }
 
 
         @Around("serviceMethods()")

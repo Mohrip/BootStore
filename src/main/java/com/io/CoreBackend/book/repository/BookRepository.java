@@ -24,10 +24,4 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     boolean existsByIsbn(String isbn);
 
     boolean existsByIsbnAndIdNot(String isbn, Long id);
-
-    @EntityGraph(attributePaths = {"author", "category"})
-    Page<Book> findByCategoryName(String categoryName, Pageable pageable);
-
-    @EntityGraph(attributePaths = {"author", "category"})
-    Page<Book> findByAuthorName(String authorName, Pageable pageable);
 }

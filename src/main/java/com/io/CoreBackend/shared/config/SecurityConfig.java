@@ -33,12 +33,22 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // 1. Public Auth Endpoints
                         .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
+
+                        // 2. Safe Public Actuator Endpoints
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+
+                        // FIX HERE: Protect all other sensitive actuator endpoints
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
+
+                        // 3. Book Endpoints
                         .requestMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/books/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/books/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/books/**").hasRole("ADMIN")
+
+                        // 4. Global Fallback
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) ->
