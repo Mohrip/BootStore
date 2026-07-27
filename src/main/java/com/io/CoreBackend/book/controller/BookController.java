@@ -37,10 +37,6 @@ public class BookController {
         return bookService.findAll(pageable);
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseBookDto findById(@PathVariable Long id) {
-//        return bookService.findById(id);
-//    }
     @GetMapping("/id")
     public Optional<ResponseBookDto> findById(@RequestParam Long id) {
         return bookService.findById(id);

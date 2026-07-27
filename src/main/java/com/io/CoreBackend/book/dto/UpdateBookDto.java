@@ -1,25 +1,3 @@
-//package com.io.CoreBackend.demo.dto;
-//
-//import jakarta.validation.constraints.NotBlank;
-//import lombok.AllArgsConstructor;
-//import lombok.Data;
-//import lombok.NoArgsConstructor;
-//
-//
-//
-//@AllArgsConstructor
-//@NoArgsConstructor
-//@Data
-//public class UpdateBookDto {
-//
-//    @NotBlank(message = "Title is mandatory")
-//    private String title;
-//
-//    @NotBlank(message = "Author is mandatory")
-//    private String author;
-//}
-
-
 package com.io.CoreBackend.book.dto;
 
 import jakarta.validation.constraints.*;

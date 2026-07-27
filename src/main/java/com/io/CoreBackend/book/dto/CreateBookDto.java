@@ -36,6 +36,5 @@ public class CreateBookDto {
 
     @NotNull(message = "Category name is required")
     private String categoryName;
-    //private Long categoryId;
 
 }

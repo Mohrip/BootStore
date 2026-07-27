@@ -56,6 +56,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, message, headers, HttpStatus.BAD_REQUEST, request);
     }
 
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneric(Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, "Something went wrong",

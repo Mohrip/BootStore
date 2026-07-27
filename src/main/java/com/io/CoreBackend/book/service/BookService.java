@@ -47,11 +47,7 @@ public class BookService {
         return bookRepository.findByTitle(title, pageable).map(bookMapper::toResponseDto);
     }
 
-//    @Transactional(readOnly = true)
-//    public ResponseBookDto findById(Long id) {
-//        Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
-//        return bookMapper.toResponseDto(book);
-//    }
+
     @Transactional(readOnly = true)
     public Optional<ResponseBookDto> findById(Long id) {
         return bookRepository.findById(id).map(bookMapper::toResponseDto);

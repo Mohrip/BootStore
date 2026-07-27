@@ -1,6 +1,5 @@
 package com.io.CoreBackend.authors.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
