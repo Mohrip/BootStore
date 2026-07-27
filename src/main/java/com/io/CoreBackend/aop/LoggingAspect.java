@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
         public void serviceMethods() {
         }
 
-        //  1- @AfterReturning is for the successfully returned object
         @AfterReturning(pointcut = "serviceMethods()", returning = "result")
         public void afterReturning(JoinPoint joinPoint, Object result) {
             String method = joinPoint.getSignature().toShortString();
@@ -34,14 +33,12 @@ import org.springframework.stereotype.Component;
         }
 
 
-        // 2- @AfterThrowing is for the exception thrown
         @AfterThrowing(pointcut = "serviceMethods()", throwing = "ex")
         public void afterThrowing(JoinPoint joinPoint, Exception ex) {
             String method = joinPoint.getSignature().toShortString();
             log.info("{} completed with exception: {}", method, ex.getMessage());
         }
 
-        // 3- @After is for the method completion (regardless of success or exception)
         @After("serviceMethods()")
         public void logAfter(JoinPoint joinPoint) {
             String method = joinPoint.getSignature().toShortString();
@@ -49,7 +46,6 @@ import org.springframework.stereotype.Component;
         }
 
 
-        // 4- @Around is
         @Around("serviceMethods()")
         public Object logExecution(ProceedingJoinPoint joinPoint) throws Throwable {
             long start = System.currentTimeMillis();
