@@ -35,4 +35,30 @@ public class CartService {
     public CartResponse getCart(String customerEmail) {
         return cartMapper.toResponse(findOrCreateCart(customerEmail));
     }
+
+    public CartResponse addItem(String customerEmail, AddCartItemRequest request) {
+        Cart cart = findOrCreateCart(customerEmail);
+        Book book = bookService.findEntityById(request.getBookId());
+
+        Optional<CartItem> existing = cart.getItems().stream()
+                .filter(item -> item.getBook().getId().equals(book.getId()))
+                .findFirst();
+
+        int newQuantity = existing.map(CartItem::getQuantity).orElse(0) + request.getQuantity();
+        requireStock(book, newQuantity);
+
+        if (existing.isPresent()) {
+            existing.get().setQuantity(newQuantity);
+        } else {
+            cart.addItem(CartItem.builder()
+                    .book(book)
+                    .quantity(request.getQuantity())
+                    .build());
+        }
+
+        log.info("Cart {}: book {} -> qty {}", cart.getId(), book.getId(), newQuantity);
+        return cartMapper.toResponse(cartRepository.save(cart));
+    }
+
+
 }
