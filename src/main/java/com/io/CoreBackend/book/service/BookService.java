@@ -19,7 +19,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
@@ -95,5 +98,36 @@ public class BookService {
         }
         return categoryRepository.getCategoriesByName(categoryName)
                 .orElseThrow(() -> new CategoryNotFoundException(categoryName));
+    }
+
+
+    @Transactional(readOnly = true)
+    public Book findEntityById(Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+    }
+
+    /**
+     *
+     * @param quantities bookId -> quantity requested
+     * @return the locked books, keyed by id
+     */
+    @Transactional
+    public Map<Long, Book> reserveStock(Map<Long, Integer> quantities) {
+        List<Book> books = bookRepository.findAllByIdForUpdate(quantities.keySet());
+
+        if(books.size() != quantities.size()) {
+            throw new BookNotFoundException(0L);
+        }
+
+        for (Book book : books) {
+            int requested =  quantities.get(book.getId());
+            if (book.getStockCount() < requested) {
+                throw new InsufficientStockException(book.getTitle(), book.getStockCount(), requested);
+            }
+            book.setStockCount(book.getStockCount() - requested);
+        }
+        return books.stream().collect(Collectors.toMap(Book::getId, book -> book));
+
     }
 }
