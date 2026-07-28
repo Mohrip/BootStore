@@ -24,12 +24,10 @@ import java.util.Optional;
 @Transactional
 public class CartService {
 
-
     private final CartRepository cartRepository;
     private final CartMapper cartMapper;
     private final BookService bookService;
     private final CustomerService customerService;
-
 
     @Transactional(readOnly = true)
     public CartResponse getCart(String customerEmail) {
@@ -41,9 +39,10 @@ public class CartService {
         Book book = bookService.findEntityById(request.getBookId());
 
         Optional<CartItem> existing = cart.getItems().stream()
-                .filter(item -> item.getBook().getId().equals(book.getId()))
+                .filter(i -> i.getBook().getId().equals(book.getId()))
                 .findFirst();
 
+        // Validate the RESULTING total, not just the delta.
         int newQuantity = existing.map(CartItem::getQuantity).orElse(0) + request.getQuantity();
         requireStock(book, newQuantity);
 
@@ -60,5 +59,53 @@ public class CartService {
         return cartMapper.toResponse(cartRepository.save(cart));
     }
 
+    public CartResponse updateItem(String customerEmail, Long bookId, UpdateCartItemRequest request) {
+        Cart cart = findOrCreateCart(customerEmail);
 
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getBook().getId().equals(bookId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Cart item for book", bookId));
+
+        requireStock(item.getBook(), request.getQuantity());
+        item.setQuantity(request.getQuantity());
+
+        return cartMapper.toResponse(cartRepository.save(cart));
+    }
+
+    public CartResponse removeItem(String customerEmail, Long bookId) {
+        Cart cart = findOrCreateCart(customerEmail);
+
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getBook().getId().equals(bookId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Cart item for book", bookId));
+
+        cart.removeItem(item);
+        return cartMapper.toResponse(cartRepository.save(cart));
+    }
+
+    public void clearCart(String customerEmail) {
+        Cart cart = findOrCreateCart(customerEmail);
+        cart.getItems().clear();
+        cartRepository.save(cart);
+    }
+
+    public Cart getCartEntity(String customerEmail) {
+        return findOrCreateCart(customerEmail);
+    }
+
+    private Cart findOrCreateCart(String customerEmail) {
+        Customer customer = customerService.findEntityByEmail(customerEmail);
+        return cartRepository.findByCustomerId(customer.getId())
+                .orElseGet(() -> cartRepository.save(
+                        Cart.builder().customer(customer).build()));
+    }
+
+    private void requireStock(Book book, int requested) {
+        if (book.getStockCount() < requested) {
+            throw new InsufficientStockException(
+                    book.getTitle(), book.getStockCount(), requested);
+        }
+    }
 }
