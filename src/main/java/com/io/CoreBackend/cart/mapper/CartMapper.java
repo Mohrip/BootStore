@@ -35,6 +35,7 @@ public class CartMapper {
                 .map(CartItemResponse::getLineTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+
         int totalItems = items.stream()
                 .mapToInt(CartItemResponse::getQuantity)
                 .sum();
