@@ -39,6 +39,7 @@ public class CartMapper {
                 .mapToInt(CartItemResponse::getQuantity)
                 .sum();
 
+
         return CartResponse.builder()
                 .id(cart.getId())
                 .items(items)
