@@ -30,4 +30,10 @@ public class CustomerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", email));
         return customerMapper.toResponse(customer);
     }
+
+    /** Module API: managed entity for other modules that need a FK reference. */
+    public Customer findEntityByEmail(String email) {
+        return customerRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", email));
+    }
 }
