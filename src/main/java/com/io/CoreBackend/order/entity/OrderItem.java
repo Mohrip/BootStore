@@ -1,39 +1,44 @@
 package com.io.CoreBackend.order.entity;
 
-
-import com.io.CoreBackend.book.entity.*;
-import com.io.CoreBackend.shared.*;
+import com.io.CoreBackend.book.entity.Book;
+import com.io.CoreBackend.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "order_items")
+@Table(name = "order_items",
+        indexes = @Index(name = "idx_order_item_order_id", columnList = "order_id"))
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+@ToString(exclude = {"order", "book"})
 public class OrderItem extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    /** Reference only — display uses the snapshot below. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_item_id", nullable = false)
-    private MenuItem menuItem;
+    @JoinColumn(name = "book_id")
+    private Book book;
 
-    @Column(nullable = false)
-    private String itemName;
+    /** Snapshot: the order must survive the book being renamed or deleted. */
+    @Column(name = "book_title", nullable = false)
+    private String bookTitle;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    /** Snapshot: what the customer actually agreed to pay. */
+    @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal subtotal;
+    @Column(name = "line_total", nullable = false, precision = 12, scale = 2)
+    private BigDecimal lineTotal;
 }
