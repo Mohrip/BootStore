@@ -1,4 +1,4 @@
-package com.io.CoreBackend.order;
+package com.io.CoreBackend.order.repository;
 
 import com.io.CoreBackend.order.entity.Order;
 import org.springframework.data.domain.Page;
