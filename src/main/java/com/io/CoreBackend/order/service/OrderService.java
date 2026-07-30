@@ -94,7 +94,7 @@ public Page<OrderResponse> getOrderHistory(String customerEmail, Pageable pageab
     Customer customer = customerService.findEntityByEmail(customerEmail);
     return orderRepository
             .findByCustomerIdOrderByCreatedAtDesc(customer.getId(), pageable)
-            .map(orderMapper::toResponse);
+            .map(orderMapper::toResponse); // هنا قاعدين نسوي معادلة وربط الاجابة بهيكل تناقل البيانات
 }
 
 @Transactional(readOnly = true)
