@@ -1,3 +1,418 @@
-databaseChangeLog:
-  - include:
-      file: db/changelog/changes/001-schema.yaml
+      databaseChangeLog:
+
+        - changeSet:
+            id: 001-create-authors
+            author: mohammed
+            changes:
+              - createTable:
+                  tableName: authors
+                  columns:
+                    - column:
+                        name: id
+                        type: BIGINT
+                        autoIncrement: true
+                        constraints:
+                          primaryKey: true
+                          primaryKeyName: pk_authors
+                          nullable: false
+                    - column:
+                        name: name
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+
+        - changeSet:
+            id: 002-create-categories
+            author: mohammed
+            changes:
+              - createTable:
+                  tableName: categories
+                  columns:
+                    - column:
+                        name: id
+                        type: BIGINT
+                        autoIncrement: true
+                        constraints:
+                          primaryKey: true
+                          primaryKeyName: pk_categories
+                          nullable: false
+                    - column:
+                        name: name
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+                          unique: true
+                          uniqueConstraintName: uk_categories_name
+
+        - changeSet:
+            id: 003-create-book-sequence
+            author: mohammed
+            changes:
+              - createSequence:
+                  sequenceName: book_seq
+                  startValue: 1
+                  incrementBy: 500
+
+        - changeSet:
+            id: 004-create-book
+            author: mohammed
+            changes:
+              - createTable:
+                  tableName: book
+                  columns:
+                    - column:
+                        name: id
+                        type: BIGINT
+                        constraints:
+                          primaryKey: true
+                          primaryKeyName: pk_book
+                          nullable: false
+                    - column:
+                        name: title
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: isbn
+                        type: VARCHAR(13)
+                        constraints:
+                          nullable: false
+                          unique: true
+                          uniqueConstraintName: uk_book_isbn
+                    - column:
+                        name: price
+                        type: NUMERIC(10, 2)
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: stock_count
+                        type: INTEGER
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: publication_date
+                        type: DATE
+                    - column:
+                        name: author_id
+                        type: BIGINT
+                        constraints:
+                          nullable: false
+                          foreignKeyName: fk_book_author
+                          references: authors(id)
+                    - column:
+                        name: category_id
+                        type: BIGINT
+                        constraints:
+                          foreignKeyName: fk_book_category
+                          references: categories(id)
+              - createIndex:
+                  tableName: book
+                  indexName: idx_book_author_id
+                  columns:
+                    - column:
+                        name: author_id
+              - createIndex:
+                  tableName: book
+                  indexName: idx_book_category_id
+                  columns:
+                    - column:
+                        name: category_id
+
+        - changeSet:
+            id: 005-create-customers
+            author: mohammed
+            changes:
+              - createTable:
+                  tableName: customers
+                  columns:
+                    - column:
+                        name: id
+                        type: BIGINT
+                        autoIncrement: true
+                        constraints:
+                          primaryKey: true
+                          primaryKeyName: pk_customers
+                          nullable: false
+                    - column:
+                        name: created_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: updated_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: username
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+                          unique: true
+                          uniqueConstraintName: uk_customers_username
+                    - column:
+                        name: email
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+                          unique: true
+                          uniqueConstraintName: uk_customers_email
+                    - column:
+                        name: phone
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+                          unique: true
+                          uniqueConstraintName: uk_customers_phone
+                    - column:
+                        name: address
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: password
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: is_enabled
+                        type: BOOLEAN
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: is_locked
+                        type: BOOLEAN
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: last_login_at
+                        type: TIMESTAMP
+                    - column:
+                        name: role
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+
+        - changeSet:
+            id: 006-create-revoked-tokens
+            author: mohammed
+            changes:
+              - createTable:
+                  tableName: revoked_tokens
+                  columns:
+                    - column:
+                        name: jti
+                        type: VARCHAR(255)
+                        constraints:
+                          primaryKey: true
+                          primaryKeyName: pk_revoked_tokens
+                          nullable: false
+                    - column:
+                        name: expires_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+
+        - changeSet:
+            id: 007-create-carts
+            author: mohammed
+            changes:
+              - createTable:
+                  tableName: carts
+                  columns:
+                    - column:
+                        name: id
+                        type: BIGINT
+                        autoIncrement: true
+                        constraints:
+                          primaryKey: true
+                          primaryKeyName: pk_carts
+                          nullable: false
+                    - column:
+                        name: created_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: updated_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: customer_id
+                        type: BIGINT
+                        constraints:
+                          nullable: false
+                          unique: true
+                          uniqueConstraintName: uk_carts_customer
+                          foreignKeyName: fk_carts_customer
+                          references: customers(id)
+
+        - changeSet:
+            id: 008-create-cart-items
+            author: mohammed
+            changes:
+              - createTable:
+                  tableName: cart_items
+                  columns:
+                    - column:
+                        name: id
+                        type: BIGINT
+                        autoIncrement: true
+                        constraints:
+                          primaryKey: true
+                          primaryKeyName: pk_cart_items
+                          nullable: false
+                    - column:
+                        name: created_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: updated_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: cart_id
+                        type: BIGINT
+                        constraints:
+                          nullable: false
+                          foreignKeyName: fk_cart_items_cart
+                          references: carts(id)
+                    - column:
+                        name: book_id
+                        type: BIGINT
+                        constraints:
+                          nullable: false
+                          foreignKeyName: fk_cart_items_book
+                          references: book(id)
+                    - column:
+                        name: quantity
+                        type: INTEGER
+                        constraints:
+                          nullable: false
+              - addUniqueConstraint:
+                  tableName: cart_items
+                  columnNames: cart_id, book_id
+                  constraintName: uk_cart_item_cart_book
+              - createIndex:
+                  tableName: cart_items
+                  indexName: idx_cart_item_cart_id
+                  columns:
+                    - column:
+                        name: cart_id
+
+        - changeSet:
+            id: 009-create-orders
+            author: mohammed
+            changes:
+              - createTable:
+                  tableName: orders
+                  columns:
+                    - column:
+                        name: id
+                        type: BIGINT
+                        autoIncrement: true
+                        constraints:
+                          primaryKey: true
+                          primaryKeyName: pk_orders
+                          nullable: false
+                    - column:
+                        name: created_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: updated_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: customer_id
+                        type: BIGINT
+                        constraints:
+                          nullable: false
+                          foreignKeyName: fk_orders_customer
+                          references: customers(id)
+                    - column:
+                        name: total_amount
+                        type: NUMERIC(12, 2)
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: status
+                        type: VARCHAR(20)
+                        constraints:
+                          nullable: false
+              - createIndex:
+                  tableName: orders
+                  indexName: idx_order_customer_id
+                  columns:
+                    - column:
+                        name: customer_id
+
+        - changeSet:
+            id: 010-create-order-items
+            author: mohammed
+            changes:
+              - createTable:
+                  tableName: order_items
+                  columns:
+                    - column:
+                        name: id
+                        type: BIGINT
+                        autoIncrement: true
+                        constraints:
+                          primaryKey: true
+                          primaryKeyName: pk_order_items
+                          nullable: false
+                    - column:
+                        name: created_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: updated_at
+                        type: TIMESTAMP
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: order_id
+                        type: BIGINT
+                        constraints:
+                          nullable: false
+                          foreignKeyName: fk_order_items_order
+                          references: orders(id)
+                    - column:
+                        name: book_id
+                        type: BIGINT
+                        constraints:
+                          foreignKeyName: fk_order_items_book
+                          references: book(id)
+                    - column:
+                        name: book_title
+                        type: VARCHAR(255)
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: unit_price
+                        type: NUMERIC(10, 2)
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: quantity
+                        type: INTEGER
+                        constraints:
+                          nullable: false
+                    - column:
+                        name: line_total
+                        type: NUMERIC(12, 2)
+                        constraints:
+                          nullable: false
+              - createIndex:
+                  tableName: order_items
+                  indexName: idx_order_item_order_id
+                  columns:
+                    - column:
+                        name: order_id
