@@ -16,12 +16,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
 @AutoConfigureMockMvc
-@Testcontainers
-class SecurityRulesTest {
+class SecurityRulesTest extends AbstractIntegrationTest {
 
-    @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
@@ -31,6 +28,7 @@ class SecurityRulesTest {
         registry.add("app.jwt.expiration-ms", () -> "3600000");
     }
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired MockMvc mvc;
 
     @Test
