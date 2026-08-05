@@ -17,6 +17,15 @@ services:
       postgres:
         condition: service_healthy
 
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+        postgres:
+          condition: service_healthy
+        redis:
+          condition: service_healthy
+
     # ---- 1. INSERT DEPLOY LIMITS HERE ----
     #
     # Without it: If your Spring Boot app gets a massive traffic spike or experiences a memory leak,
@@ -69,6 +78,17 @@ services:
       start_period: 30s
     volumes:
       - corebackend_pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    command: [ "redis-server", "--appendonly", "no", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru" ]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
 volumes:
   corebackend_pg_data:
