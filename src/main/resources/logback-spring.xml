@@ -1,44 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="LOGS" value="./logs" />
+    <!-- DEVELOPMENT PROFILE Configuration -->
+    <springProfile name="dev">
+        <property name="LOGS" value="./logs" />
 
-    <appender name="Console"
-              class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>
-                %green(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1}): %msg%n%throwable
-            </Pattern>
-        </layout>
-    </appender>
+        <!-- Colorful Local Console Logging -->
+        <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>%green(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1}): %msg%n%throwable</Pattern>
+            </layout>
+        </appender>
 
-    <appender name="RollingFile"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOGS}/spring-boot-logger.log</file>
-        <encoder
-                class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <Pattern>%d %p %C{1} [%t] %m%n</Pattern>
-        </encoder>
+        <!-- Local Rolling File Backup -->
+        <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOGS}/spring-boot-logger.log</file>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <Pattern>%d %p %C{1} [%t] %m%n</Pattern>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>10MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+        </appender>
 
-        <rollingPolicy
-                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd}.%i.log
-            </fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>10MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-        </rollingPolicy>
-    </appender>
+        <!-- Root Level for Dev: Info -->
+        <root level="info">
+            <appender-ref ref="Console" />
+            <appender-ref ref="RollingFile" />
+        </root>
 
-    <root level="info">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </root>
+        <!-- Core Package for Dev: Deep Trace Visibility -->
+        <logger name="com.io.CoreBackend" level="trace" additivity="false">
+            <appender-ref ref="Console" />
+            <appender-ref ref="RollingFile" />
+        </logger>
+    </springProfile>
 
-    <logger name="com.io.CoreBackend" level="trace" additivity="false">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </logger>
+
+    <!-- PRODUCTION PROFILE Configuration -->
+    <springProfile name="prod">
+        <!-- Structured JSON Console Appender for Docker/Cloud Logging Systems -->
+        <appender name="JsonConsole" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="org.springframework.boot.logging.logback.StructuredLogFormatterEncoder">
+                <format>json</format>
+            </encoder>
+        </appender>
+
+        <!-- Higher Root Level for Prod: Quiet, high-priority tracking only -->
+        <root level="warn">
+            <appender-ref ref="JsonConsole" />
+        </root>
+
+        <!-- Your Business Logic in Prod: Keep it at 'info' so you can track successful processes -->
+        <logger name="com.io.CoreBackend" level="info" additivity="false">
+            <appender-ref ref="JsonConsole" />
+        </logger>
+    </springProfile>
 
 </configuration>
