@@ -16,7 +16,18 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
     # ---- 1. INSERT DEPLOY LIMITS HERE ----
+    #
+    # Without it: If your Spring Boot app gets a massive traffic spike or experiences a memory leak,
+    #it can grow uncontrollably and consume 100% of your host server's RAM.
+    #This will cause the entire operating system to freeze,
+    #crashing your database and any other applications running on that machine.
+    #With it: You set a strict cage around your app.
+    #It can never use more than 2G of RAM or 2.0 CPU cores, protecting your underlying infrastructure.
+    #
+    #
+    #
     deploy:
       resources:
         limits:
@@ -26,6 +37,15 @@ services:
           memory: 1G
 
     # ---- 2. INSERT APP HEALTHCHECK HERE ----
+
+    # Without it: If your Spring Boot app experiences an OutOfMemoryError,
+    # or loses its database connection permanently,
+    # the container will look "Green/Running" to Docker,
+    # but users will get 500 errors.With it: Docker pings your Spring Boot Actuator endpoint.
+    # If the app fails to respond 3 times in a row, Docker flags it as unhealthy.
+    # If you use orchestration tools (like Docker Swarm), it will automatically destroy the broken container and start a fresh one.
+    #
+    #
     healthcheck:
       test: [ "CMD", "wget", "-qO-", "http://localhost:8085/actuator/health" ]
       interval: 30s
