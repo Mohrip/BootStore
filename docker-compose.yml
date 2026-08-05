@@ -10,12 +10,28 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
-      JAVA_TOOL_OPTIONS: "-Xmx2g"
+      # REMOVED JAVA_TOOL_OPTIONS to let MaxRAMPercentage handle memory safely
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
     depends_on:
       postgres:
         condition: service_healthy
+    # ---- 1. INSERT DEPLOY LIMITS HERE ----
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+
+    # ---- 2. INSERT APP HEALTHCHECK HERE ----
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:8085/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s # Gives Spring Boot 60 seconds to boot up before checking
 
   postgres:
     image: postgres:16-alpine
