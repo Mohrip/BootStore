@@ -2,6 +2,7 @@ package com.io.CoreBackend.book.repository;
 
 import com.io.CoreBackend.book.entity.Book;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.Version;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -25,8 +26,11 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Optional<Book> findById(Long id);
 
 
+   // Page<Book> findByTitle(String title, Pageable pageable);
+    //changed (findByTitle) to (findByTitleContainingIgnoreCase)
     @EntityGraph(attributePaths = {"author", "category"})
-    Page<Book> findByTitle(String title, Pageable pageable);
+    Page<Book> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+
 
     boolean existsByIsbn(String isbn);
 
