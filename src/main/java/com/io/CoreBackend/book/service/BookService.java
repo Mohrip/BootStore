@@ -44,7 +44,7 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public Page<ResponseBookDto> findByTitle(String title, Pageable pageable) {
-        return bookRepository.findByTitle(title, pageable).map(bookMapper::toResponseDto);
+        return bookRepository.findByTitleContainingIgnoreCase(title.trim(), pageable).map(bookMapper::toResponseDto);
     }
 
 
