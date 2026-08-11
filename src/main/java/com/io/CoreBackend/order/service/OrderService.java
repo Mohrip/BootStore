@@ -15,6 +15,7 @@ import com.io.CoreBackend.order.mapper.OrderMapper;
 import com.io.CoreBackend.order.repository.OrderRepository;
 import com.io.CoreBackend.shared.exception.BusinessRuleException;
 import com.io.CoreBackend.shared.exception.ResourceNotFoundException;
+import com.io.CoreBackend.shared.exception.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
