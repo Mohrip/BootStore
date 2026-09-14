@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
                 name = "uk_idempotency_key_customer",
                 columnNames = {"idempotency_key", "customer_id"}),
         indexes = @Index(name = "idx_idempotency_expires_at", columnList = "expires_at"))
+
 @Getter
 @Setter
 @NoArgsConstructor
