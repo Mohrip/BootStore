@@ -14,4 +14,5 @@ public class OrderItemResponse {
     private BigDecimal unitPrice;
     private Integer quantity;
     private BigDecimal lineTotal;
+
 }
