@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
         @Pointcut("@within(org.springframework.stereotype.Service) "
                 + "&& !within(com.io.CoreBackend.customer.service.AuthService)")
         public void serviceMethods() {
+
         }
 
         /**
@@ -59,5 +60,6 @@ import org.springframework.stereotype.Component;
             } finally {
                 log.debug("{} took {} ms", method, System.currentTimeMillis() - start);
             }
+
         }
     }
